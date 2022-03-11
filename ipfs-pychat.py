@@ -4,17 +4,32 @@ import base64
 
 listening = True
 sending = True
-
+id_set = set()
 
 def listen(client, channel):
+    id_self = None
+    sub = client.pubsub.subscribe('ping_channel')
+    client.pubsub.publish('ping_channel', 'ping')
+    for msg in sub:
+        id_self = msg['from']
+        break
+    sub.close()
+
+    print('My ID:', id_self)
+    id_set.add(id_self)
+
     try:
         with client.pubsub.subscribe(channel) as sub:
             if listening:
                 for msg in sub:
-                    data = msg['data']
+                    data = base64.b64decode(msg['data']).decode('utf-8')
                     sender = msg['from']
-                    print('FROM', sender)
-                    print(base64.b64decode(data).decode('utf-8'))
+                    if sender not in id_set:
+                        print('---', sender, 'entered the room ---')
+                    if sender == id_self:
+                        print('SENT |', data)
+                    else:
+                        print('RECV |', data)
             else:
                 return
     except Exception as e:
