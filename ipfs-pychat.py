@@ -25,7 +25,8 @@ def listen(client, channel):
                     data = base64.b64decode(msg['data']).decode('utf-8')
                     sender = msg['from']
                     if sender not in id_set:
-                        print('---', sender, 'entered the room ---')
+                        print('#### |', sender, 'entered the room')
+                        id_set.add(sender)
                     if sender == id_self:
                         print('SENT |', data)
                     else:
@@ -64,3 +65,4 @@ if __name__ == '__main__':
 
     t2.join()
     print("---End---")
+    exit()
